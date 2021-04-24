@@ -1,18 +1,18 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <b-container fluid class="pt-3">
+    <b-row class="text-center align-items-center">
+      <b-col md="6" class="ml-auto mr-auto">
+        <FilterOptions />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import FilterOptions from '../components/FilterOptions'
 
 export default {
   name: 'Home',
-  components: {
-    HelloWorld
-  }
+  components: { FilterOptions }
 }
 </script>
