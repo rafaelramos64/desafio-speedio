@@ -1,8 +1,11 @@
 <template>
-  <b-container fluid class="pt-3">
+  <b-container fluid class="pt-4 pl-5 pr-5">
     <b-row class="text-center align-items-center">
-      <b-col md="6" class="ml-auto mr-auto">
+      <b-col md="6" align-self="start">
         <FilterOptions />
+      </b-col>
+      <b-col md="6" align-self="start">
+        <FilterCountiesStates />
       </b-col>
     </b-row>
   </b-container>
@@ -10,9 +13,10 @@
 
 <script>
 import FilterOptions from '../components/FilterOptions'
+import FilterCountiesStates from '../components/FilterCountiesStates'
 
 export default {
   name: 'Home',
-  components: { FilterOptions }
+  components: { FilterOptions, FilterCountiesStates }
 }
 </script>
