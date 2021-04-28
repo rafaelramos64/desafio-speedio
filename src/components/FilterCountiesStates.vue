@@ -13,13 +13,13 @@
       class="text-left pl-5 pt-1 mt-3"
     >
       <div
-        v-for="(countiesStates, index) in countiesStatesOfFilterOptions"
+        v-for="(countiesStates, index) in allCountiesStates"
         :key="index"
       >
-        <div v-if="filterLabelChecked(countiesStates)">
+        <div v-if="filterCountiesStatesChecked(countiesStates)">
           <label for="input">
             <input
-              @change="getAllLabelsChecked()"
+              @change="getAllCountiesStatesChecked()"
               type="checkbox"
               id="input"
               v-model="selectedCountiesStates"
@@ -41,7 +41,7 @@ export default {
   data () {
     return {
       sublines: [],
-      countiesStatesOfFilterOptions: [],
+      allCountiesStates: [],
       selectedCountiesStates: [],
       searchCountiesStates: ''
     }
@@ -55,14 +55,21 @@ export default {
   methods: {
     async getData () {
       const response = await api.get()
-      const filterOptions = response.data.filters[1].filters[4].filterOptions
-      for (let index in filterOptions) {
-        this.sublines.push(filterOptions[index].subline)
-        this.countiesStatesOfFilterOptions.push(filterOptions[index].label)
+      /* const filteredCounties = response.data.filters[1].filters[4].filterOptions
+      const filteredStates = response.data.filters[1].filters[5].filterOptions */
+
+      const filteredCountiesStates = response.data.filters[1].filters
+
+      for (let ind = 4; ind < 6; ind++) {
+        for (let index in filteredCountiesStates[ind].filterOptions) {
+
+          this.sublines.push(filteredCountiesStates[ind].filterOptions[index].subline)
+          this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].label)
+        }
       }
     },
 
-    filterLabelChecked (CountiesStates) {
+    filterCountiesStatesChecked (CountiesStates) {
       if (!!this.searchCountiesStates) {
         const countiesStatesCorrect = this.removeAccent(CountiesStates)
         const searchCountiesStatesCorrect = this.removeAccent(this.searchCountiesStates)
@@ -71,7 +78,7 @@ export default {
       return false
     },
 
-    getAllLabelsChecked () {
+    getAllCountiesStatesChecked () {
       const parsed = JSON.stringify(this.selectedCountiesStates)
       localStorage.setItem('listCountiesStates', parsed)
     },

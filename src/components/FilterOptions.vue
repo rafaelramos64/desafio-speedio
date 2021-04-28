@@ -59,7 +59,7 @@ export default {
       for (let index in filterOptions) {
         this.labelsOfFilterOptions.push(filterOptions[index].label)
         this.sublines.push(filterOptions[index].subline)
-        /* this.groupTags[filterOptions[index].label] = filterOptions[index].subline */
+        /* this.groupsublines[filterOptions[index].label] = filterOptions[index].subline */
       }
     },
 
