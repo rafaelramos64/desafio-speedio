@@ -7,6 +7,7 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
+    <h5 class="mt-3">{{ sectorsTitle }} </h5>
     <b-card
       v-if="searchLabels"
       no-body
@@ -17,13 +18,13 @@
         :key="index"
       >
         <div v-if="filterLabelChecked(label)">
-          <label for="input">
+          <label for="input-checkbox">
             <input  
               @change="getAllLabelsChecked()"
               type="checkbox"
-              id="input"
+              id="input-checkbox"
               v-model="selectedLabels"
-              :value="label"/>
+              :value="labelValues[index]"/>
             {{ label }}         <span style="color: rgb(118, 118, 118); font-size: 13px;">{{ sublines[index] }}</span>
           </label>
         </div>
@@ -39,10 +40,12 @@ export default {
   name: 'FilterOptions',
   data () {
     return {
-      sublines: [],
       labelsOfFilterOptions: [],
+      sublines: [],
+      labelValues: [],
       selectedLabels: [],
-      searchLabels: ''
+      searchLabels: '',
+      sectorsTitle: ''
     }
   },
 
@@ -56,9 +59,12 @@ export default {
       const response = await api.get()
       const filterOptions = response.data.filters[0].filters[0].filterOptions
 
+      this.sectorsTitle = response.data.filters[0].filters[0].title
+
       for (let index in filterOptions) {
         this.labelsOfFilterOptions.push(filterOptions[index].label)
         this.sublines.push(filterOptions[index].subline)
+        this.labelValues.push(filterOptions[index].value)
         /* this.groupsublines[filterOptions[index].label] = filterOptions[index].subline */
       }
     },
@@ -69,7 +75,7 @@ export default {
         const searchLabelCorrect = this.removeAccent(this.searchLabels)
         return labelCorrect.includes(searchLabelCorrect)
       }
-      return false
+        
     },
 
     getAllLabelsChecked () {

@@ -2,7 +2,7 @@
   <b-container fluid class="pt-4 pl-5 pr-5">
     <b-row class="text-center align-items-center">
       <b-col md="6" align-self="start">
-        <FilterOptions />
+        <FilterSectors />
       </b-col>
       <b-col md="6" align-self="start">
         <FilterCountiesStates />
@@ -12,11 +12,11 @@
 </template>
 
 <script>
-import FilterOptions from '../components/FilterOptions'
+import FilterSectors from '../components/FilterSectors'
 import FilterCountiesStates from '../components/FilterCountiesStates'
 
 export default {
   name: 'Home',
-  components: { FilterOptions, FilterCountiesStates }
+  components: { FilterSectors, FilterCountiesStates }
 }
 </script>

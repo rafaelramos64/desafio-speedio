@@ -7,6 +7,7 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
+    <h5 class="mt-3">{{ titleCounties }} e {{ titleStates }} </h5>
     <b-card
       v-if="searchCountiesStates"
       no-body
@@ -17,14 +18,13 @@
         :key="index"
       >
         <div v-if="filterCountiesStatesChecked(countiesStates)">
-          <label for="input">
+          <label for="input-checkbox">
             <input
               @change="getAllCountiesStatesChecked()"
               type="checkbox"
-              id="input"
+              id="input-checkbox"
               v-model="selectedCountiesStates"
-              :value="countiesStates"
-            />
+              :value="allValuesCountiesStates[index]">
             {{ countiesStates }} <span style="color: rgb(118, 118, 118); font-size: 13px;">{{ sublines[index] }}</span>
           </label>
         </div>
@@ -42,8 +42,11 @@ export default {
     return {
       sublines: [],
       allCountiesStates: [],
+      allValuesCountiesStates: [],
       selectedCountiesStates: [],
-      searchCountiesStates: ''
+      searchCountiesStates: '',
+      titleCounties: '',
+      titleStates: ''
     }
   },
 
@@ -60,11 +63,16 @@ export default {
 
       const filteredCountiesStates = response.data.filters[1].filters
 
+      this.titleCounties = filteredCountiesStates[4].title
+      this.titleStates = filteredCountiesStates[5].title
+
       for (let ind = 4; ind < 6; ind++) {
         for (let index in filteredCountiesStates[ind].filterOptions) {
 
           this.sublines.push(filteredCountiesStates[ind].filterOptions[index].subline)
           this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].label)
+          this.allValuesCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].value)
+          
         }
       }
     },
