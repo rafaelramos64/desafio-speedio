@@ -20,3 +20,7 @@ export default {
   components: { FilterSectors, FilterCountiesStates }
 }
 </script>
+
+<style scoped>
+
+</style>

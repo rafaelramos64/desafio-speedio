@@ -17,6 +17,11 @@
         v-for="(countiesStates, index) in allCountiesStates"
         :key="index"
       >
+        <transition name="fade">
+          <div class="loading" v-if="loading">
+            <span class="fa fa-spinner fa-spin"></span> Loading
+          </div>
+        </transition>
         <div v-if="filterCountiesStatesChecked(countiesStates)">
           <label for="input-checkbox">
             <input
@@ -46,20 +51,26 @@ export default {
       selectedCountiesStates: [],
       searchCountiesStates: '',
       titleCounties: '',
-      titleStates: ''
+      titleStates: '',
+      labelToScroll: [],
+      page: 1,
+      loading: false
     }
   },
 
   mounted () {
-    this.getData()
-    this.selectedCountiesStates = JSON.parse(localStorage.listCountiesStates || '[]')
+    this.initialData()
   },
 
   methods: {
+    async initialData () {
+      this.selectedCountiesStates = JSON.parse(localStorage.listCountiesStates || '[]')
+      await this.getData()
+      this.onEnter()
+    },
+
     async getData () {
       const response = await api.get()
-      /* const filteredCounties = response.data.filters[1].filters[4].filterOptions
-      const filteredStates = response.data.filters[1].filters[5].filterOptions */
 
       const filteredCountiesStates = response.data.filters[1].filters
 
@@ -68,9 +79,8 @@ export default {
 
       for (let ind = 4; ind < 6; ind++) {
         for (let index in filteredCountiesStates[ind].filterOptions) {
-
-          this.sublines.push(filteredCountiesStates[ind].filterOptions[index].subline)
           this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].label)
+          this.sublines.push(filteredCountiesStates[ind].filterOptions[index].subline)
           this.allValuesCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].value)
           
         }
@@ -96,7 +106,29 @@ export default {
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, "");
-    },
+    }
   }
 }
 </script>
+
+<style scoped>
+.loading {
+  text-align: center;
+  position: fixed;
+  color: #fff;
+  z-index: 1;
+  background: #5c4084;
+  padding: 8px 18px;
+  border-radius: 5px;
+  left: calc(75% - 50px);
+  top: calc(80% - 18px);
+}
+  
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>

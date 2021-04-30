@@ -9,6 +9,12 @@ import store from './store'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+import '@fortawesome/fontawesome-free/css/all.css'
+import '@fortawesome/fontawesome-free/js/all.js'
+
+import VueInfiniteScroll from '@grafikri/vue-infinite-scroll'
+Vue.use(VueInfiniteScroll)
+
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 

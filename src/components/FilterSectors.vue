@@ -9,6 +9,8 @@
     ></b-form-input>
     <h5 class="mt-3">{{ sectorsTitle }} </h5>
     <b-card
+      v-infinite-scroll="{ onEnter, onLeave, distance: 20 }"
+      style="max-height: 500px; overflow: auto;"
       v-if="searchLabels"
       no-body
       class="text-left pl-5 pt-1 mt-3"
@@ -17,6 +19,11 @@
         v-for="(label, index) in labelsOfFilterOptions"
         :key="index"
       >
+        <transition name="fade">
+          <div class="loading" v-if="loading">
+            <span class="fa fa-spinner fa-spin"></span> Loading
+          </div>
+        </transition>
         <div v-if="filterLabelChecked(label)">
           <label for="input-checkbox">
             <input  
@@ -45,24 +52,33 @@ export default {
       labelValues: [],
       selectedLabels: [],
       searchLabels: '',
-      sectorsTitle: ''
+      sectorsTitle: '',
+      labelToScroll: [],
+      page: 1,
+      loading: false,
     }
   },
 
   mounted () {
-    this.getData()
-    this.selectedLabels = JSON.parse(localStorage.listLabels || '[]')
+    this.initialData()
   },
 
   methods: {
+    async initialData () {
+      this.selectedLabels = JSON.parse(localStorage.listLabels || '[]')
+      await this.getData()
+      this.onEnter()
+    },
+
     async getData () {
       const response = await api.get()
+      
       const filterOptions = response.data.filters[0].filters[0].filterOptions
 
       this.sectorsTitle = response.data.filters[0].filters[0].title
-
+      
       for (let index in filterOptions) {
-        this.labelsOfFilterOptions.push(filterOptions[index].label)
+        this.labelToScroll.push(filterOptions[index].label)
         this.sublines.push(filterOptions[index].subline)
         this.labelValues.push(filterOptions[index].value)
         /* this.groupsublines[filterOptions[index].label] = filterOptions[index].subline */
@@ -89,6 +105,53 @@ export default {
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, "");
     },
+
+    onEnter () {
+      this.loading = true
+      setTimeout(() => {
+        const numberPerPage = 20
+        let begin = ((this.page - 1) * numberPerPage)
+        let end = begin + numberPerPage
+        this.labelsOfFilterOptions = this.labelToScroll.slice(begin, end)
+        this.page ++
+        this.loading = false;
+      }, 300);
+    },
+
+    onLeave () {
+      this.loading = true
+      setTimeout(() => {
+        const numberPerPage = 20
+        let begin = ((this.page - 1) * numberPerPage)
+        let end = begin + numberPerPage
+        this.labelsOfFilterOptions = this.labelToScroll.slice(begin, end)
+        this.page ++
+        this.loading = false;
+      }, 200);
+      console.log('onLeave')
+    }
   }
 }
 </script>
+
+<style scoped>
+.loading {
+  text-align: center;
+  position: fixed;
+  color: #fff;
+  z-index: 1;
+  background: #5c4084;
+  padding: 8px 18px;
+  border-radius: 5px;
+  left: calc(25% - 45px);
+  top: calc(80% - 18px);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>
