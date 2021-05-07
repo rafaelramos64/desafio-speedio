@@ -127,8 +127,8 @@ export default {
 
         this.itemsToShow = this.allCountiesStates.filter(item => {
           return this.removeAccent(item.label).includes(searchCountiesStatesCorrect)
-            || this.removeAccent(item.tags).includes(searchCountiesStatesCorrect)
             || this.removeAccent(item.value).includes(searchCountiesStatesCorrect)
+            || this.removeAccent(item.tags).includes(searchCountiesStatesCorrect)
         })
         this.itemsOfCountiesStates = this.itemsToShow.slice(0, 20)
       }

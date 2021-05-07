@@ -7,7 +7,9 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
-    <h4 class="mt-3"> <b-badge variant="info"> {{ sectorsTitle }} </b-badge> </h4>
+    <h4 class="mt-3">
+      <b-badge variant="info"> {{ sectorsTitle }} </b-badge>
+    </h4>
     <b-card
       v-show="searchLabels"
       id="infinite-list"
@@ -15,9 +17,15 @@
       no-body
       class="text-left pl-5 pt-1 mt-3 shadow-lg"
     >
-      <div v-for="(item, index) in itemsOfFilterOptions" :key="index">
+      <div
+        v-for="(item, index) in itemsOfFilterOptions"
+        :key="index"
+      >
         <transition name="fade">
-          <div class="loading" v-if="loading">
+          <div
+            class="loading"
+            v-if="loading"
+          >
             <span class="fa fa-spinner fa-spin"></span> Loading
           </div>
         </transition>
@@ -98,7 +106,7 @@ export default {
 
     async getData () {
       const response = await api.get()
-      
+
       this.filterOptions = response.data.filters[0].filters[0].filterOptions
       this.sectorsTitle = response.data.filters[0].filters[0].title
     },
@@ -110,8 +118,12 @@ export default {
         this.itemsToShow = this.filterOptions.filter(item => {
           return this.removeAccent(item.label).includes(searchLabelCorrect)
             || this.removeAccent(item.value).includes(searchLabelCorrect)
+            || (typeof item.tags === 'string'
+                  ? this.removeAccent(item.tags).includes(searchLabelCorrect)
+                  : item.tags.some(tag => this.removeAccent(tag).includes(searchLabelCorrect))
+               )
         })
-        
+
         /* for (let i = 0; i < this.itemsToShow.length; i++) {
           this.itemsToShow[i].label = `${i + 1} - ${this.itemsToShow[i].label}`
         } */
