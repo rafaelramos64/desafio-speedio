@@ -83,11 +83,9 @@ export default {
 
   methods: {
     loadMore () {
-      if (this.itemsOfFilterOptions.length === this.itemsToShow.length) {
-        this.loading = false
-      } else {
-        this.loading = true
-      }
+      this.itemsOfFilterOptions.length === this.itemsToShow.length
+        ? this.loading = false : this.loading = true
+        
       setTimeout(e => {
         this.itemsOfFilterOptions.push(
           ...this.itemsToShow.slice(
@@ -113,20 +111,8 @@ export default {
 
     filterLabelChecked () {
       if (this.searchLabels) {
-        const searchLabelCorrect = this.removeAccent(this.searchLabels)
-
-        this.itemsToShow = this.filterOptions.filter(item => {
-          return this.removeAccent(item.label).includes(searchLabelCorrect)
-            || this.removeAccent(item.value).includes(searchLabelCorrect)
-            || (typeof item.tags === 'string'
-                  ? this.removeAccent(item.tags).includes(searchLabelCorrect)
-                  : item.tags.some(tag => this.removeAccent(tag).includes(searchLabelCorrect))
-               )
-        })
-
-        /* for (let i = 0; i < this.itemsToShow.length; i++) {
-          this.itemsToShow[i].label = `${i + 1} - ${this.itemsToShow[i].label}`
-        } */
+        this.searchLabelCorrect = this.removeAccent(this.searchLabels)
+        this.searchByValueLabelTags()
 
         this.itemsOfFilterOptions = this.itemsToShow.slice(0, 20)
       }
@@ -142,6 +128,20 @@ export default {
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
+    },
+
+    searchByValueLabelTags () {
+      this.itemsToShow = this.filterOptions.filter(item => {
+        return this.removeAccent(item.label).includes(this.searchLabelCorrect)
+          || this.removeAccent(item.value).includes(this.searchLabelCorrect)
+          || (typeof item.tags === 'string'
+                ? this.removeAccent(item.tags).includes(this.searchLabelCorrect)
+                : item.tags.some(tag => this.removeAccent(tag).includes(this.searchLabelCorrect))
+              )
+      })
+       /* for (let i = 0; i < this.itemsToShow.length; i++) {
+          this.itemsToShow[i].label = `${i + 1} - ${this.itemsToShow[i].label}`
+        } */
     }
   }
 }

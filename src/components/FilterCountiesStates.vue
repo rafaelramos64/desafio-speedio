@@ -84,11 +84,9 @@ export default {
 
   methods: {
     loadMore () {
-    if (this.itemsOfCountiesStates.length === this.itemsToShow.length) {
-      this.loading = false
-    } else {
-      this.loading = true
-    }
+      this.itemsOfCountiesStates.length === this.itemsToShow.length
+        ? this.loading = false : this.loading = true
+        
       setTimeout(e => {
         this.itemsOfCountiesStates.push(
           ...this.itemsToShow.slice(
