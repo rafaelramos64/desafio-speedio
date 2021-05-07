@@ -7,7 +7,7 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
-    <h5 class="mt-3">{{ sectorsTitle }}</h5>
+    <h4 class="mt-3"> <b-badge variant="info"> {{ sectorsTitle }} </b-badge> </h4>
     <b-card
       v-show="searchLabels"
       id="infinite-list"
@@ -57,7 +57,7 @@ export default {
   },
 
   watch: {
-    searchLabels: function (newQuestion, oldQuestion) {
+    searchLabels () {
       this.filterLabelChecked()
     }
   },
@@ -75,7 +75,11 @@ export default {
 
   methods: {
     loadMore () {
-      this.loading = true
+      if (this.itemsOfFilterOptions.length === this.itemsToShow.length) {
+        this.loading = false
+      } else {
+        this.loading = true
+      }
       setTimeout(e => {
         this.itemsOfFilterOptions.push(
           ...this.itemsToShow.slice(
@@ -100,11 +104,12 @@ export default {
     },
 
     filterLabelChecked () {
-      if (this.searchLabels && this.searchLabels !== '') {
+      if (this.searchLabels) {
         const searchLabelCorrect = this.removeAccent(this.searchLabels)
 
         this.itemsToShow = this.filterOptions.filter(item => {
           return this.removeAccent(item.label).includes(searchLabelCorrect)
+            || this.removeAccent(item.value).includes(searchLabelCorrect)
         })
         
         /* for (let i = 0; i < this.itemsToShow.length; i++) {

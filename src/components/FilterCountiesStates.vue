@@ -7,7 +7,7 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
-    <h5 class="mt-3">{{ titleCounties }} e {{ titleStates }} </h5>
+    <h4 class="mt-3"> <b-badge variant="info"> {{ titleCounties }} e {{ titleStates }} </b-badge> </h4>
     <b-card
       v-show="searchCountiesStates"
       id="infinite-list-counties"
@@ -37,7 +37,7 @@
           />
           {{ countiesStates.label }}
           <span style="color: rgb(118, 118, 118); font-size: 13px;">{{
-            countiesStates.sublines
+            countiesStates.subline
           }}</span>
         </label>
       </div>
@@ -84,7 +84,11 @@ export default {
 
   methods: {
     loadMore () {
+    if (this.itemsOfCountiesStates.length === this.itemsToShow.length) {
+      this.loading = false
+    } else {
       this.loading = true
+    }
       setTimeout(e => {
         this.itemsOfCountiesStates.push(
           ...this.itemsToShow.slice(
@@ -115,16 +119,16 @@ export default {
         }
       } */
       this.allCountiesStates = [...filteredCountiesStates[4].filterOptions, ...filteredCountiesStates[5].filterOptions]
-      console.log(this.allCountiesStates)
     },
 
     filterCountiesStatesChecked () {
       if (this.searchCountiesStates) {
         const searchCountiesStatesCorrect = this.removeAccent(this.searchCountiesStates)
-        console.log(searchCountiesStatesCorrect);
 
         this.itemsToShow = this.allCountiesStates.filter(item => {
           return this.removeAccent(item.label).includes(searchCountiesStatesCorrect)
+            || this.removeAccent(item.tags).includes(searchCountiesStatesCorrect)
+            || this.removeAccent(item.value).includes(searchCountiesStatesCorrect)
         })
         this.itemsOfCountiesStates = this.itemsToShow.slice(0, 20)
       }
