@@ -9,7 +9,7 @@
     ></b-form-input>
     <h5 class="mt-3">{{ titleCounties }} e {{ titleStates }} </h5>
     <b-card
-      v-if="searchCountiesStates"
+      v-show="searchCountiesStates"
       id="infinite-list-counties"
       style="max-height: 80vh; overflow: auto;"
       no-body
@@ -20,7 +20,10 @@
         :key="index"
       >
         <transition name="fade">
-          <div class="loading" v-if="loading">
+          <div
+            class="loading"
+            v-if="loading"
+          >
             <span class="fa fa-spinner fa-spin"></span> Loading
           </div>
         </transition>
@@ -30,7 +33,8 @@
             type="checkbox"
             id="input-checkbox"
             v-model="selectedCountiesStates"
-            :value="countiesStates.value"/>
+            :value="countiesStates.value"
+          />
           {{ countiesStates.label }}
           <span style="color: rgb(118, 118, 118); font-size: 13px;">{{
             countiesStates.sublines
@@ -60,12 +64,12 @@ export default {
     }
   },
 
-   watch: {
-    searchLabels: function (newQuestion, oldQuestion) {
+  watch: {
+    searchCountiesStates () {
       this.filterCountiesStatesChecked()
     }
   },
-  
+
   mounted () {
     this.initialData()
 
@@ -105,16 +109,19 @@ export default {
       this.titleCounties = filteredCountiesStates[4].title
       this.titleStates = filteredCountiesStates[5].title
 
-      for (let ind = 4; ind < 6; ind++) {
+      /* for (let ind = 4; ind < 6; ind++) {
         for (let index in filteredCountiesStates[ind].filterOptions) {
           this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index])
         }
-      }
+      } */
+      this.allCountiesStates = [...filteredCountiesStates[4].filterOptions, ...filteredCountiesStates[5].filterOptions]
+      console.log(this.allCountiesStates)
     },
 
     filterCountiesStatesChecked () {
-      if (this.searchCountiesStates && this.searchCountiesStates !== '') {
+      if (this.searchCountiesStates) {
         const searchCountiesStatesCorrect = this.removeAccent(this.searchCountiesStates)
+        console.log(searchCountiesStatesCorrect);
 
         this.itemsToShow = this.allCountiesStates.filter(item => {
           return this.removeAccent(item.label).includes(searchCountiesStatesCorrect)
@@ -149,13 +156,5 @@ export default {
   border-radius: 5px;
   left: calc(75% - 50px);
   top: calc(80% - 18px);
-}
-  
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
-}
-
-.fade-enter, .fade-leave-to {
-  opacity: 0;
 }
 </style>

@@ -9,7 +9,7 @@
     ></b-form-input>
     <h5 class="mt-3">{{ sectorsTitle }}</h5>
     <b-card
-      v-if="searchLabels"
+      v-show="searchLabels"
       id="infinite-list"
       style="max-height: 80vh; overflow: auto;"
       no-body
@@ -64,7 +64,6 @@ export default {
 
   mounted () {
     this.initialData()
-
     const listElm = document.querySelector('#infinite-list')
     listElm.addEventListener('scroll', e => {
       if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
@@ -142,15 +141,5 @@ export default {
   border-radius: 5px;
   left: calc(25% - 45px);
   top: calc(80% - 18px);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
