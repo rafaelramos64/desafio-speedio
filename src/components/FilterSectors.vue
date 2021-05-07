@@ -7,34 +7,33 @@
       autocomplete="off"
       list="options"
     ></b-form-input>
-    <h5 class="mt-3">{{ sectorsTitle }} </h5>
+    <h5 class="mt-3">{{ sectorsTitle }}</h5>
     <b-card
-      v-infinite-scroll="{ onEnter, onLeave, distance: 20 }"
-      style="max-height: 500px; overflow: auto;"
       v-if="searchLabels"
+      id="infinite-list"
+      style="max-height: 80vh; overflow: auto;"
       no-body
-      class="text-left pl-5 pt-1 mt-3"
+      class="text-left pl-5 pt-1 mt-3 shadow-lg"
     >
-      <div
-        v-for="(label, index) in labelsOfFilterOptions"
-        :key="index"
-      >
+      <div v-for="(item, index) in itemsOfFilterOptions" :key="index">
         <transition name="fade">
           <div class="loading" v-if="loading">
             <span class="fa fa-spinner fa-spin"></span> Loading
           </div>
         </transition>
-        <div v-if="filterLabelChecked(label)">
-          <label for="input-checkbox">
-            <input  
-              @change="getAllLabelsChecked()"
-              type="checkbox"
-              id="input-checkbox"
-              v-model="selectedLabels"
-              :value="labelValues[index]"/>
-            {{ label }}         <span style="color: rgb(118, 118, 118); font-size: 13px;">{{ sublines[index] }}</span>
-          </label>
-        </div>
+        <label for="input-checkbox">
+          <input
+            @change="getAllLabelsChecked()"
+            type="checkbox"
+            id="input-checkbox"
+            v-model="selectedLabels"
+            :value="item.value"
+          />
+          {{ item.label }}
+          <span style="color: rgb(118, 118, 118); font-size: 13px;">{{
+            item.subline
+          }}</span>
+        </label>
       </div>
     </b-card>
   </div>
@@ -47,51 +46,74 @@ export default {
   name: 'FilterOptions',
   data () {
     return {
-      labelsOfFilterOptions: [],
-      sublines: [],
-      labelValues: [],
+      itemsOfFilterOptions: [],
       selectedLabels: [],
       searchLabels: '',
       sectorsTitle: '',
-      labelToScroll: [],
-      page: 1,
+      itemsToShow: [],
       loading: false,
+      filterOptions: []
+    }
+  },
+
+  watch: {
+    searchLabels: function (newQuestion, oldQuestion) {
+      this.filterLabelChecked()
     }
   },
 
   mounted () {
     this.initialData()
+
+    const listElm = document.querySelector('#infinite-list')
+    listElm.addEventListener('scroll', e => {
+      if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+        this.loadMore()
+      }
+    })
+    this.loadMore()
   },
 
   methods: {
+    loadMore () {
+      this.loading = true
+      setTimeout(e => {
+        this.itemsOfFilterOptions.push(
+          ...this.itemsToShow.slice(
+            this.itemsOfFilterOptions.length,
+            this.itemsOfFilterOptions.length + 20
+          )
+        )
+        this.loading = false
+      }, 200)
+    },
+
     async initialData () {
       this.selectedLabels = JSON.parse(localStorage.listLabels || '[]')
       await this.getData()
-      this.onEnter()
     },
 
     async getData () {
       const response = await api.get()
       
-      const filterOptions = response.data.filters[0].filters[0].filterOptions
-
+      this.filterOptions = response.data.filters[0].filters[0].filterOptions
       this.sectorsTitle = response.data.filters[0].filters[0].title
-      
-      for (let index in filterOptions) {
-        this.labelToScroll.push(filterOptions[index].label)
-        this.sublines.push(filterOptions[index].subline)
-        this.labelValues.push(filterOptions[index].value)
-        /* this.groupsublines[filterOptions[index].label] = filterOptions[index].subline */
-      }
     },
 
-    filterLabelChecked (label) {
-      if (!!this.searchLabels) {
-        const labelCorrect = this.removeAccent(label)
+    filterLabelChecked () {
+      if (this.searchLabels && this.searchLabels !== '') {
         const searchLabelCorrect = this.removeAccent(this.searchLabels)
-        return labelCorrect.includes(searchLabelCorrect)
-      }
+
+        this.itemsToShow = this.filterOptions.filter(item => {
+          return this.removeAccent(item.label).includes(searchLabelCorrect)
+        })
         
+        /* for (let i = 0; i < this.itemsToShow.length; i++) {
+          this.itemsToShow[i].label = `${i + 1} - ${this.itemsToShow[i].label}`
+        } */
+
+        this.itemsOfFilterOptions = this.itemsToShow.slice(0, 20)
+      }
     },
 
     getAllLabelsChecked () {
@@ -103,32 +125,7 @@ export default {
       return currentString
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, "");
-    },
-
-    onEnter () {
-      this.loading = true
-      setTimeout(() => {
-        const numberPerPage = 20
-        let begin = ((this.page - 1) * numberPerPage)
-        let end = begin + numberPerPage
-        this.labelsOfFilterOptions = this.labelToScroll.slice(begin, end)
-        this.page ++
-        this.loading = false;
-      }, 300);
-    },
-
-    onLeave () {
-      this.loading = true
-      setTimeout(() => {
-        const numberPerPage = 20
-        let begin = ((this.page - 1) * numberPerPage)
-        let end = begin + numberPerPage
-        this.labelsOfFilterOptions = this.labelToScroll.slice(begin, end)
-        this.page ++
-        this.loading = false;
-      }, 200);
-      console.log('onLeave')
+        .replace(/[\u0300-\u036f]/g, '')
     }
   }
 }
@@ -147,11 +144,13 @@ export default {
   top: calc(80% - 18px);
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

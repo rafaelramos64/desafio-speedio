@@ -10,11 +10,13 @@
     <h5 class="mt-3">{{ titleCounties }} e {{ titleStates }} </h5>
     <b-card
       v-if="searchCountiesStates"
+      id="infinite-list-counties"
+      style="max-height: 80vh; overflow: auto;"
       no-body
-      class="text-left pl-5 pt-1 mt-3"
+      class="text-left pl-5 pt-1 mt-3 shadow-lg"
     >
       <div
-        v-for="(countiesStates, index) in allCountiesStates"
+        v-for="(countiesStates, index) in itemsOfCountiesStates"
         :key="index"
       >
         <transition name="fade">
@@ -22,17 +24,18 @@
             <span class="fa fa-spinner fa-spin"></span> Loading
           </div>
         </transition>
-        <div v-if="filterCountiesStatesChecked(countiesStates)">
-          <label for="input-checkbox">
-            <input
-              @change="getAllCountiesStatesChecked()"
-              type="checkbox"
-              id="input-checkbox"
-              v-model="selectedCountiesStates"
-              :value="allValuesCountiesStates[index]">
-            {{ countiesStates }} <span style="color: rgb(118, 118, 118); font-size: 13px;">{{ sublines[index] }}</span>
-          </label>
-        </div>
+        <label for="input-checkbox">
+          <input
+            @change="getAllCountiesStatesChecked()"
+            type="checkbox"
+            id="input-checkbox"
+            v-model="selectedCountiesStates"
+            :value="countiesStates.value"/>
+          {{ countiesStates.label }}
+          <span style="color: rgb(118, 118, 118); font-size: 13px;">{{
+            countiesStates.sublines
+          }}</span>
+        </label>
       </div>
     </b-card>
   </div>
@@ -45,28 +48,53 @@ export default {
   name: 'FilterCountiesStates',
   data () {
     return {
-      sublines: [],
       allCountiesStates: [],
-      allValuesCountiesStates: [],
       selectedCountiesStates: [],
+      itemsToShow: [],
+      itemsOfCountiesStates: [],
       searchCountiesStates: '',
       titleCounties: '',
       titleStates: '',
       labelToScroll: [],
-      page: 1,
       loading: false
     }
   },
 
+   watch: {
+    searchLabels: function (newQuestion, oldQuestion) {
+      this.filterCountiesStatesChecked()
+    }
+  },
+  
   mounted () {
     this.initialData()
+
+    const listElm = document.querySelector('#infinite-list-counties')
+    listElm.addEventListener('scroll', e => {
+      if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+        this.loadMore()
+      }
+    })
+    this.loadMore()
   },
 
   methods: {
+    loadMore () {
+      this.loading = true
+      setTimeout(e => {
+        this.itemsOfCountiesStates.push(
+          ...this.itemsToShow.slice(
+            this.itemsOfCountiesStates.length,
+            this.itemsOfCountiesStates.length + 20
+          )
+        )
+        this.loading = false
+      }, 200)
+    },
+
     async initialData () {
       this.selectedCountiesStates = JSON.parse(localStorage.listCountiesStates || '[]')
       await this.getData()
-      this.onEnter()
     },
 
     async getData () {
@@ -79,21 +107,20 @@ export default {
 
       for (let ind = 4; ind < 6; ind++) {
         for (let index in filteredCountiesStates[ind].filterOptions) {
-          this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].label)
-          this.sublines.push(filteredCountiesStates[ind].filterOptions[index].subline)
-          this.allValuesCountiesStates.push(filteredCountiesStates[ind].filterOptions[index].value)
-          
+          this.allCountiesStates.push(filteredCountiesStates[ind].filterOptions[index])
         }
       }
     },
 
-    filterCountiesStatesChecked (CountiesStates) {
-      if (!!this.searchCountiesStates) {
-        const countiesStatesCorrect = this.removeAccent(CountiesStates)
+    filterCountiesStatesChecked () {
+      if (this.searchCountiesStates && this.searchCountiesStates !== '') {
         const searchCountiesStatesCorrect = this.removeAccent(this.searchCountiesStates)
-        return countiesStatesCorrect.includes(searchCountiesStatesCorrect)
+
+        this.itemsToShow = this.allCountiesStates.filter(item => {
+          return this.removeAccent(item.label).includes(searchCountiesStatesCorrect)
+        })
+        this.itemsOfCountiesStates = this.itemsToShow.slice(0, 20)
       }
-      return false
     },
 
     getAllCountiesStatesChecked () {
