@@ -1,4 +1,6 @@
-# desafio-speedio
+# Teste Speedio
+
+### A aplicação consiste em um sistema que busca, filtra e salva dados de um arquivo .JSON.
 
 ## Project setup
 ```
